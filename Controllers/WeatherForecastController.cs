@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace NASA_InSght.Controllers
+namespace NASA_InSight.Controllers
 {
     [ApiController]
     [Route("[controller]")]

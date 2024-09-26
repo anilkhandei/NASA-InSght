@@ -1,4 +1,4 @@
-namespace NASA_InSght
+namespace NASA_InSight
 {
     public class WeatherForecast
     {

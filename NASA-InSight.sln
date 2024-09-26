@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NASA-InSght.API", "NASA-InSght.API.csproj", "{7123FD91-8A37-4424-B776-BFCF1D398C09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NASA-InSight.API", "NASA-InSight.API.csproj", "{7123FD91-8A37-4424-B776-BFCF1D398C09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
