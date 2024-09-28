@@ -2,6 +2,6 @@
 {
     public interface IInSightAPIService
     {
-        Task GetInSightData();
+        Task<string> GetInSightData();
     }
 }

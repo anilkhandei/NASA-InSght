@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
+using NASA_InSight.Data;
+using NASA_InSight.Models;
+using NASA_InSight.Services;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace NASA_InSight.Controllers
 {
@@ -6,21 +12,48 @@ namespace NASA_InSight.Controllers
     [Route("[controller]")]
     public class InSightController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly HttpClient _httpClient;
-        public InSightController(IHttpClientFactory httpClientFactory)
+       private readonly IInSightAPIService _inSightAPIService;
+        private readonly NASAInSightContext _nasaInsigtContext;
+        public InSightController(IInSightAPIService inSightAPIService, NASAInSightContext nASAInSightContext)
         {
-            _httpClientFactory = httpClientFactory;
-            _httpClient=httpClientFactory.CreateClient("InSight");
+            _inSightAPIService = inSightAPIService;   
+            _nasaInsigtContext = nASAInSightContext;
         }
         [HttpGet("GetWeather")]
-        public async Task Get()
+        public async Task<IActionResult> Get()
         {
-            var resp=await _httpClient.GetAsync("insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0");
-            if (resp != null && resp.IsSuccessStatusCode)
+
+            string response;
+            var didWeAddToday= _nasaInsigtContext.APICallLogs.ToList().Count>0 && _nasaInsigtContext.APICallLogs.Where(l=>l.TimeStamp.Date==DateTime.Now.Date).ToList().Any();
+            if (!didWeAddToday)
             {
-                string insightJson= await resp.Content.ReadAsStringAsync();
+                response = await _inSightAPIService.GetInSightData();
+                
+                _nasaInsigtContext.APICallLogs.Add(new APICallLogs()
+                {
+                    APIData = response,
+                    APIURL = "",
+                    TimeStamp = DateTime.Now
+                });
+                await _nasaInsigtContext.SaveChangesAsync();
             }
+            else
+            {
+                response = _nasaInsigtContext.APICallLogs.Where(l => l.TimeStamp.Date == DateTime.Now.Date).First().APIData;
+            }
+
+            JsonObject? wdm = JsonSerializer.Deserialize<JsonObject>(response);
+
+            string[]? sol_keys = JsonSerializer.Deserialize<string[]>(wdm["sol_keys"] ?? default);
+            List<SOL> solList = new();
+            foreach (var sol_key in sol_keys)
+            {
+                SOL sol = JsonSerializer.Deserialize<SOL>(wdm[sol_key]);
+                solList.Add(sol);
+            }
+
+
+            return Ok(solList);
         }
     }
 }
