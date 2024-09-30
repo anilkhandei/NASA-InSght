@@ -3,5 +3,6 @@
     public interface IInSightAPIService
     {
         Task<string> GetInSightData();
+        string GetInSightURL();
     }
 }

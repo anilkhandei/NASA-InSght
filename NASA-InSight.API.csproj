@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>NASA_InSight</RootNamespace>
+    <UserSecretsId>59312da9-a788-4e05-b6b1-980003b779bf</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,14 +4,16 @@
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpClient _httpClient;
-        public InSightAPIService(IHttpClientFactory httpClientFactory)
+        private readonly IConfiguration _config;
+        public InSightAPIService(IHttpClientFactory httpClientFactory,IConfiguration config)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient("InSight");
+            _config = config;
         }
         public async Task<string> GetInSightData()
         {
-            var resp = await _httpClient.GetAsync("insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0");
+            var resp = await _httpClient.GetAsync(GetInSightURL());
             string responseStr = string.Empty;
             if (resp != null && resp.IsSuccessStatusCode)
             {
@@ -20,5 +22,11 @@
             }
             return responseStr;
         }
+        public string GetInSightURL()
+        {
+            string apiKey=_config.GetSection("NASA:apikey")?.Value ?? "DEMO_KEY";
+            return $"insight_weather/?api_key={apiKey}&feedtype=json&ver=1.0";
+        }
+
     }
 }
