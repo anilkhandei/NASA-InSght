@@ -59,7 +59,7 @@ namespace NASA_InSight.Controllers
             JsonObject? wdm = JsonSerializer.Deserialize<JsonObject>(existingLogEntry??string.Empty);
 
             // For now, let's assume SOL is a class with the necessary properties
-            var sol_keys = JsonSerializer.Deserialize<string[]>(wdm) ?? Array.Empty<string>();
+            var sol_keys = JsonSerializer.Deserialize<string[]>(wdm["sol_keys "]) ?? Array.Empty<string>();
             var solList = sol_keys
                 .Select(sol_key => JsonSerializer.Deserialize<SOL>(wdm[sol_key]))
                 .Where(sol => sol != null)
