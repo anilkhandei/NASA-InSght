@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NASA_InSight.Data;
 using NASA_InSight.Models;
 using NASA_InSight.Services;
@@ -23,45 +24,50 @@ namespace NASA_InSight.Controllers
             _config = config;
         }
         [HttpGet("GetWeather")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-
-            string? response;
-            //optimized by AI
-            var didWeAddToday = _nasaInsigtContext.APICallLogs.Any(l => l.TimeStamp.Date == DateTime.Now.Date);
+            var currentDate=DateTime.Now.Date;
+            // Check if we've already added data for today
+            var didWeAddToday = await _nasaInsigtContext.APICallLogs
+                .AnyAsync(l => l.TimeStamp.Date == currentDate);
 
             if (!didWeAddToday)
             {
-                response = await _inSightAPIService.GetInSightData();
-                string inSightUrl = _inSightAPIService.GetInSightURL();
-                var newLogEntry = new APICallLogs()
+                // Fetch data from the InSight API
+                var (inSightUrl, response) = await _inSightAPIService.FetchInSightDataAndUrlAsync();
+
+                // Create a new log entry
+                var newLogEntry = new APICallLogs
                 {
                     APIData = response,
                     APIURL = inSightUrl,
-                    TimeStamp = DateTime.Now
+                    TimeStamp = currentDate
                 };
+
+                // Add the log entry to the context and save changes
                 _nasaInsigtContext.APICallLogs.Add(newLogEntry);
                 await _nasaInsigtContext.SaveChangesAsync();
             }
-            else
-            {
-                //optimized by AI
-                response = _nasaInsigtContext.APICallLogs
-                        .Where(l => l.TimeStamp.Date == DateTime.Now.Date)
-                        .Select(l => l.APIData)
-                        .FirstOrDefault();
-            }
-            
-            JsonObject? wdm = JsonSerializer.Deserialize<JsonObject>(response);
 
-            string[]? sol_keys = JsonSerializer.Deserialize<string[]>(wdm["sol_keys"] ?? default);
-            List<SOL?> solList = new();
-            if (sol_keys != null && sol_keys.Length > 0)
-                solList.AddRange(sol_keys
-                    .Select(sol_key => JsonSerializer.Deserialize<SOL>(wdm[sol_key]))
-                    .Where(sol => sol != null));
+            // Retrieve data from the existing log entry for today
+            var existingLogEntry = await _nasaInsigtContext.APICallLogs
+                .Where(l => l.TimeStamp.Date == DateTime.Now.Date)
+                .Select(l => l.APIData)
+                .FirstOrDefaultAsync();
+
+            // Deserialize the response into a JsonObject
+            JsonObject? wdm = JsonSerializer.Deserialize<JsonObject>(existingLogEntry??string.Empty);
+
+            // For now, let's assume SOL is a class with the necessary properties
+            var sol_keys = JsonSerializer.Deserialize<string[]>(wdm) ?? Array.Empty<string>();
+            var solList = sol_keys
+                .Select(sol_key => JsonSerializer.Deserialize<SOL>(wdm[sol_key]))
+                .Where(sol => sol != null)
+                .ToList();
 
             return Ok(solList);
         }
+
+
     }
 }

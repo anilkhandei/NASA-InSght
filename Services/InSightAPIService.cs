@@ -27,6 +27,10 @@
             string apiKey=_config.GetSection("NASA:apikey")?.Value ?? "DEMO_KEY";
             return $"insight_weather/?api_key={apiKey}&feedtype=json&ver=1.0";
         }
+        async public Task<(string,string)> FetchInSightDataAndUrlAsync()
+        {
+            return (GetInSightURL(), await GetInSightData());
+        }
 
     }
 }

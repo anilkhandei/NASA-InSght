@@ -4,5 +4,7 @@
     {
         Task<string> GetInSightData();
         string GetInSightURL();
+
+        Task<(string, string)> FetchInSightDataAndUrlAsync();
     }
 }
