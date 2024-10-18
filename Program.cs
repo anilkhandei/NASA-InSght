@@ -6,6 +6,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//Allow CORS
+string AllowNASAWASM = "AllowNASAWASMApp";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: AllowNASAWASM,
+                      policy =>
+                      {
+                          policy.WithOrigins("https://localhost:7039")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                                
+                      });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddDbContext<NASAInSightContext>(options =>options
     .UseSqlServer(builder.Configuration.GetConnectionString("InSight")));
@@ -14,12 +28,14 @@ builder.Services.AddDbContext<NASAInSightContext>(options =>options
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHttpClient("InSight", httpClient =>
+builder.Services.AddHttpClient("NASA", httpClient =>
 {
-    httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("NASA:InSightWeatherAPI").Value!);
+    httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("NASA:BaseURI").Value!);
 });
 
 builder.Services.AddScoped<IInSightAPIService, InSightAPIService>();
+builder.Services.AddScoped<IAPODAPIService, APODAPIService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,9 +44,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
-
+app.UseCors(AllowNASAWASM);
 app.UseAuthorization();
 
 app.MapControllers();

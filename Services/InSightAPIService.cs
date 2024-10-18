@@ -8,7 +8,7 @@
         public InSightAPIService(IHttpClientFactory httpClientFactory,IConfiguration config)
         {
             _httpClientFactory = httpClientFactory;
-            _httpClient = httpClientFactory.CreateClient("InSight");
+            _httpClient = httpClientFactory.CreateClient("NASA");
             _config = config;
         }
         public async Task<string> GetInSightData()
@@ -25,7 +25,8 @@
         public string GetInSightURL()
         {
             string apiKey=_config.GetSection("NASA:apikey")?.Value ?? "DEMO_KEY";
-            return $"insight_weather/?api_key={apiKey}&feedtype=json&ver=1.0";
+            string inSightEndPoint = _config.GetSection("NASA:InSightEndpoint")?.Value ?? string.Empty;
+            return string.Format(inSightEndPoint, apiKey);
         }
         async public Task<(string,string)> FetchInSightDataAndUrlAsync()
         {

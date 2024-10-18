@@ -60,12 +60,18 @@ namespace NASA_InSight.Controllers
 
             // For now, let's assume SOL is a class with the necessary properties
             var sol_keys = JsonSerializer.Deserialize<string[]>(wdm["sol_keys"]) ?? Array.Empty<string>();
+            var options = new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            };
             var solList = sol_keys
-                .Select(sol_key => (sol_key,JsonSerializer.Deserialize<SOL>(wdm[sol_key])))
+                .Select(sol_key => (sol_key,JsonSerializer.Deserialize<SOL>(wdm[sol_key],options)))
                 .Where(t => t.Item2 != null)
                 .ToDictionary(sk=>sk.sol_key, sk=>sk.Item2);
 
-            return Ok(solList);
+            string returnString = JsonSerializer.Serialize(solList);
+
+            return Ok(returnString);
         }
 
 
