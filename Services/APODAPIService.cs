@@ -1,4 +1,5 @@
 ﻿using NASA_InSight.Models;
+using System.Net.Http;
 using System.Text.Json;
 
 namespace NASA_InSight.Services
@@ -6,16 +7,15 @@ namespace NASA_InSight.Services
     public class APODAPIService : IAPODAPIService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
         public APODAPIService(IHttpClientFactory httpClientFactory, IConfiguration config)
         {
             _httpClientFactory = httpClientFactory;
-            _httpClient = httpClientFactory.CreateClient("NASA");
             _config = config;
         }
         public async Task<string> GetAPODUri()
         {
+            var _httpClient = _httpClientFactory.CreateClient("NASA");
             var resp=await _httpClient.GetAsync(GetAPODURL());
             string responseStr = string.Empty;
             if (resp != null && resp.IsSuccessStatusCode)
