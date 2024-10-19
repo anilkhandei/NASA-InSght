@@ -17,14 +17,12 @@ namespace NASA_InSight.Services
         {
             var _httpClient = _httpClientFactory.CreateClient("NASA");
             var resp=await _httpClient.GetAsync(GetAPODURL());
-            string responseStr = string.Empty;
-            if (resp != null && resp.IsSuccessStatusCode)
-            {
-                string insightJson = await resp.Content.ReadAsStringAsync();
-                APOD? aPOD = JsonSerializer.Deserialize<APOD>(insightJson)??default;
-                responseStr = aPOD!=null ? aPOD.hdurl : string.Empty;
-            }
-            return responseStr;
+            resp.EnsureSuccessStatusCode();
+            //string responseStr = string.Empty;
+            string aPodJson = await resp.Content.ReadAsStringAsync();
+                //APOD? aPOD = JsonSerializer.Deserialize<APOD>(aPodJson) ??default;
+                //responseStr = aPOD!=null ? aPOD.hdurl : string.Empty;
+            return aPodJson;
         }
 
         public string GetAPODURL()

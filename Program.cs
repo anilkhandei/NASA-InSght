@@ -36,6 +36,11 @@ builder.Services.AddHttpClient("NASA", httpClient =>
 builder.Services.AddScoped<IInSightAPIService, InSightAPIService>();
 builder.Services.AddScoped<IAPODAPIService, APODAPIService>();
 
+builder.Services.AddScoped<MarsService>();
+builder.Services.AddScoped<EarthService>();
+
+builder.Services.AddScoped<IPlanetServiceFactory, PlanetServiceFactory>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
