@@ -1,6 +1,6 @@
 @NASA_InSght_HostAddress = http://localhost:5260
 
-GET {{NASA_InSght_HostAddress}}/weatherforecast/
+GET {{NASA_InSght_HostAddress}}/insight/getweather
 Accept: application/json
 
 ###
